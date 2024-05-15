@@ -2,6 +2,8 @@
 " Maintainer:
 "       Amir Salihefendic - @amix3k
 "
+" Ray's Movidfications
+"
 " Awesome_version:
 "       Get this config, nice color schemes and lots of plugins!
 "
@@ -32,6 +34,8 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Sets how many lines of history VIM has to remember
 set history=500
+" Set line number
+set number
 
 " Enable filetype plugins
 filetype plugin on
@@ -87,10 +91,12 @@ set hid
 
 " Configure backspace so it acts as it should act
 set backspace=eol,start,indent
-set whichwrap+=<,>,h,l
+" :set whichwrap+=<,>,h,l
+set nowrap "noWrap lines  
 
 " Ignore case when searching
 set ignorecase
+nmap <F9> :set ignorecase! ignorecase?
 
 " When searching try to be smart about cases
 set smartcase
@@ -127,6 +133,16 @@ endif
 " Add a bit extra margin to the left
 set foldcolumn=1
 
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Ray stuff
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" display nonascii chars
+syntax match nonascii "[^\x00-\x7F]"
+highlight nonascii guibg=Red ctermbg=2
+
+" highlight nonascii guibg=Red ctermbg=1 term=standout
+" au BufReadPost * syntax match nonascii '[^\u0000-\u007F]'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Colors and Fonts
@@ -192,7 +208,6 @@ set tw=500
 
 set ai "Auto indent
 set si "Smart indent
-set wrap "Wrap lines
 
 
 """"""""""""""""""""""""""""""
@@ -299,7 +314,7 @@ fun! CleanExtraSpaces()
 endfun
 
 if has("autocmd")
-    autocmd BufWritePre *.txt,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
+    autocmd BufWritePre *.tf,*.yml,*.txt,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
 endif
 
 
