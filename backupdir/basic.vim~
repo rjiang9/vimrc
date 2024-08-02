@@ -424,4 +424,3 @@ endfunction
 
 " Another short way
 " match ErrorMsg '\%>80v.\+'
-set nowrap           " do not automatically wrap on load
