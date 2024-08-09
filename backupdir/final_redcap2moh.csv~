@@ -3,6 +3,9 @@
 ## MoH template is manually updated to match the MoH clinical data model
 ## Items are comma separated: element, mapping method
 
+
+
+## 
 ## MoH 
 ##  program_id
 ##
@@ -52,6 +55,12 @@ DONOR.INDEX.primary_diagnoses.INDEX.clinical_t_category, {single_val("Primary Di
 DONOR.INDEX.primary_diagnoses.INDEX.clinical_n_category, {single_val("Primary Diagnosis".clinical_n_category)}
 DONOR.INDEX.primary_diagnoses.INDEX.clinical_m_category, {single_val("Primary Diagnosis".clinical_m_category)}
 
+##
+##
+## sample only has one col: clinical_stage_group
+## but Carolyn's synthetic data has this group of cols:
+## even though there is NO value 
+##        How to get???
 ## clinical_stage_group: Get the 1st 1
 ##   clinical_stage_group_1
 ##   clinical_stage_group_2

@@ -105,7 +105,6 @@ set lbr
 set tw=0
 set nowrap           " do not automatically wrap on load
 
-
 " Ignore case when searching
 set ignorecase
 nmap <F9> :set ignorecase! ignorecase?
@@ -424,4 +423,3 @@ endfunction
 
 " Another short way
 " match ErrorMsg '\%>80v.\+'
-set nowrap           " do not automatically wrap on load

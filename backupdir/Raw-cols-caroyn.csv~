@@ -11,12 +11,11 @@ redcap_repeat_instance
 
 lost_to_followup
 date_before_lost_to_followup
+
 donor_complete
-program_id_pd
 confirmation_diagnosis_date
 high_level_stage_diagnosis
 primary_diagnosis_complete
-program_id_comorbidity
 submitter_comorbidity_id
 
 
@@ -30,12 +29,14 @@ genetic_germline_gene
 genetic_syndrome_other
 genetic_germline_gene_other
 comorbidity_complete
+program_id_pd
+program_id_comorbidity
 program_id_exp
+program_id_treatment
 
 
 
 exposure_complete
-program_id_treatment
 submitter_primary_diagnosis_id_t
 treatment_completed
 

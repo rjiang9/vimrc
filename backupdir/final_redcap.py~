@@ -1,0 +1,295 @@
+import mappings
+import re
+
+"""
+cause_of_death: 1, Died of cancer|2, Died of other reasons|99, Unknown
+lost_to_followup_reason: 1, Completed study|6, Withdrew from study|2, Discharged to palliative care|3, Lost contact|98, Not applicable|99, Unknown
+primary_site:   1, Accessory sinuses (Reference: ICD-O C31)|
+                2, Adrenal gland (Reference: ICD-O C74)|
+                3, Anus and anal canal (Reference: ICD-O C21)|
+                4, Base of tongue (Reference: ICD-O C01)|
+                5, Bladder (Reference: ICD-O C67)|
+                6, Bones, joints and articular cartilage of limbs (Reference: ICD-O C40)|
+                7, Bones, joints and articular cartilage of other and unspecified sites (Reference: ICD-O C41)|
+                8, Brain (Reference: ICD-O C71)|
+                9, Breast (Reference: ICD-O C50)|
+                10, Bronchus and lung (Reference: ICD-O C34)|
+                11, Cervix uteri (Reference: ICD-O C53)|
+                12, Colon (Reference: ICD-O C18)|
+                13, Connective, subcutaneous and other soft tissues (Reference: ICD-O C49)|
+                14, Corpus uteri (Reference: ICD-O C54)|
+                15, Esophagus (Reference: ICD-O C15)|
+                16, Eye and adnexa (Reference: ICD-O C69)|
+                17, Floor of mouth (Reference: ICD-O C04)|
+                18, Gallbladder (Reference: ICD-O C23)|
+                19, Gum (Reference: ICD-O C03)|
+                20, Heart, mediastinum, and pleura (Reference: ICD-O C38)|
+                21, Hematopoietic and reticuloendothelial systems (Reference: ICD-O C42)|
+                22, Hypopharynx (Reference: ICD-O C13)|
+                23, Kidney (Reference: ICD-O C64)|
+                24, Larynx (Reference: ICD-O C32)|
+                25, Lip (Reference: ICD-O C00)|
+                26, Liver and intrahepatic bile ducts (Reference: ICD-O C22)|
+                27, Lymph nodes (Reference: ICD-O C77)|
+                28, Meninges (Reference: ICD-O C70)|
+                29, Nasal cavity and middle ear (Reference: ICD-O C30)|30, Nasopharynx (Reference: ICD-O C11)|31, Oropharynx (Reference: ICD-O C10)|
+                32, Other and ill-defined digestive organs (Reference: ICD-O C26)|
+                33, Other and ill-defined sites (Reference: ICD-O C76)|
+                34, Other and ill-defined sites in lip, oral cavity and pharynx (Reference: ICD-O C14)|
+                35, Other and ill-defined sites within respiratory system and intrathoracic organs (Reference: ICD-O C39)|
+                36, Other and unspecified female genital organs (Reference: ICD-O C57)|
+                37, Other and unspecified major salivary glands (Reference: ICD-O C08)|38, Other and unspecified male genital organs (Reference: ICD-O C63)|39, Other and unspecified parts of biliary tract (Reference: ICD-O C24)|40, Other and unspecified parts of mouth (Reference: ICD-O C06)|41, Other and unspecified parts of tongue (Reference: ICD-O C02)|42, Other and unspecified urinary organs (Reference: ICD-O C68)|43, Other endocrine glands and related structures (Reference: ICD-O C75)|44, Ovary (Reference: ICD-O C56)|45, Palate (Reference: ICD-O C05)|46, Pancreas (Reference: ICD-O C25)|47, Parotid gland (Reference: ICD-O C07)|48, Penis (Reference: ICD-O C60)|49, Peripheral nerves and autonomic nervous system (Reference: ICD-O C47)|50, Placenta (Reference: ICD-O C58)|51, Prostate gland (Reference: ICD-O C61)|52, Pyriform sinus (Reference: ICD-O C12)|53, Rectosigmoid junction (Reference: ICD-O C19)|54, Rectum (Reference: ICD-O C20)|55, Renal pelvis (Reference: ICD-O C65)|56, Retroperitoneum and peritoneum (Reference: ICD-O C48)|57, Skin (Reference: ICD-O C44)|58, Small intestine (Reference: ICD-O C17)|59, Spinal cord, cranial nerves, and other parts of central nervous system (Reference: ICD-O C72)|60, Stomach (Reference: ICD-O C16)|61, Testis (Reference: ICD-O C62)|62, Thymus (Reference: ICD-O C37)|63, Thyroid gland (Reference: ICD-O C73)|64, Tonsil (Reference: ICD-O C09)|65, Trachea (Reference: ICD-O C33)|66, Ureter (Reference: ICD-O C66)|67, Uterus, NOS (Reference: ICD-O C55)|68, Vagina (Reference: ICD-O C52)|69, Vulva (Reference: ICD-O C51)|
+                ...
+                70, Unknown primary site (Reference: ICD-O C80)
+laterality:     1, Left|
+                2, Right|
+                3, Midline|
+                4, Bilateral|
+                5, Unilateral, side not specified|
+                98, Not a paired site|
+                99, Unknown
+lymph_nodes_examined_status:
+                1, Yes|
+                2, No|
+                3, No lymph nodes found in resected specimen|
+                98, Not applicable|
+                99, Cannot be determined
+lymph_nodes_examined_method:
+                1, Imaging|
+                2, Lymph node dissection/pathological exam|
+                3, Physical palpation of patient
+
+clinical_tumour_staging_system
+            1, AJCC 8th edition| 2, AJCC 7th edition| 3, AJCC 6th edition| 4, Ann Arbor staging system| 5, Binet staging system| 6, Durie-Salmon staging system| 7, FIGO staging system| 13, International Neuroblastoma Risk Group Staging System| 14, International Neuroblastoma Staging System| 8, Lugano staging system| 9, Rai staging system| 10, Revised International staging system (RISS)| 11, St Jude staging system| 97, Other
+clinical_t_category:
+        1, T0| 2, T1| 3, T1a| 4, T1a1| 5, T1a2| 6, T1a(s)| 7, T1a(m)| 8, T1b| 9, T1b1| 10, T1b2| 11, T1b(s)| 12, T1b(m)| 13, T1c| 14, T1d|
+        15, T1mi|16, T2|17, T2(s)|18, T2(m)|19, T2a|20, T2a1|21, T2a2|22, T2b|23, T2c|24, T2d|25, T3|26, T3(s)|27, T3(m)|28, T3a|29, T3b|30, T3c|31, T3d|32, T3e|33, T4|34, T4a|35, T4a(s)|36, T4a(m)|37, T4b|38, T4b(s)|39, T4b(m)|40, T4c|41, T4d|42, T4e|43, Ta|44, Tis|45, Tis(DCIS)|46, Tis(LAMN)|47, Tis(LCIS)|48, Tis(Paget)|49, Tis(Paget's)|50, Tis pd|51, Tis pu|
+        ...
+        52, TX
+clinical_n_category:
+        1, N0|2, N0a|3, N0a (biopsy)|4, N0b|5, N0b (no biopsy)|6, N0(i+)|7, N0(i-)|8, N0(mol+)|9, N0(mol-)|10, N1|11, N1a|12, N1a(sn)|13, N1b|14, N1c|15, N1mi|16, N2|17, N2a|18, N2b|19, N2c|20, N2mi|21, N3|22, N3a|23, N3b|24, N3c|25, N4|26, NX
+clinical_m_category
+        1, M0|2, M0(i+)|3, M1|4, M1a|5, M1a(0)|6, M1a(1)|7, M1b|8, M1b(0)|9, M1b(1)|10, M1c|11, M1c(0)|12, M1c(1)|13, M1d|14, M1d(0)|15, M1d(1)|16, M1e|17, MX|98, Not applicable
+prior_malignancy
+        1, Yes|2, No|99, Unknown
+laterality_of_prior_malignancy
+        1, Left|2, Right|3, Midline|4, Bilateral|5, Unilateral, side not specified|99, Unknown
+comorbidity_treatment_status | radio
+        1, Yes|2, No|99, Unknown
+tobacco_smoking_status
+    1, Current reformed smoker for <= 15 years|2, Current reformed smoker for > 15 years|3, Current reformed smoker, duration not specified|4, Current smoker|5, Lifelong non-smoker (< 100 cigarettes smoked in lifetime)|98, Not applicable|99, Smoking history not documented
+tobacco_type
+    1, Chewing Tobacco|2, Cigar|3, Cigarettes|4, Electronic cigarettes|5, Pipe|6, Roll-ups|7, Snuff|8, Waterpipe|98, Not applicable|99, Unknown
+treatment_type
+    10, Surgery|3, Endoscopic therapy|7, Photodynamic therapy|8, Radiation therapy|2, Chemotherapy|4, Hormonal therapy|5, Immunotherapy|6, Other targeting molecular therapy|1, Bone marrow transplant|9, Stem cell transplant|0, No treatment
+is_primary_treatment
+    1, Yes|2, No|99, Unknown
+treatment_setting
+    1, Adjuvant (Reference: NCIt C15675)|3, Neoadjuvant (Reference: NCIt: C15665)|4, Conditioning (Reference: NCIt C188745)|5, Induction (Reference: NCIt C158876)|6, Locally advanced (Reference: NCIt C124451)|2, Advanced/Metastatic (Reference: NCIt: C14174)|7, Maintenance (Reference NCIt C15688)|8, Mobilization (Reference: NCIt C62604)|9, Preventative (Reference: NCIt C124454)|10, Radiosensitization (Reference: NCIt C156596 and C15464)|11, Salvage (Reference: NCIt C15359)
+GO on:
+    Dict Line 69
+status_of_treatment
+        1, Treatment completed as prescribed|2, Treatment incomplete due to technical or organizational problems|3, Treatment incomplete because patient died|4, Patient choice (stopped or interrupted treatment)|5, Physician decision (stopped or interrupted treatment)|6, Treatment stopped due to lack of efficacy (disease progression)|7, Treatment stopped due to acute toxicity|8, Other|98, Not applicable|99, Unknown
+
+"""
+
+"""
+sex_at_birth: 1, Male|2, Female|99, Other
+gender: 1, Man|2, Woman|3, Non-binary person
+"""
+
+def gender(data_values):
+    val = mappings.single_val(data_values)
+    if val.lower() == "male":
+        return "Man"
+    if val.lower() == "female":
+        return "Woman"
+    return "Non-binary"
+
+
+def sex_at_birth(data_values):
+    val = mappings.single_val(data_values)
+    return val
+
+
+def comorbidity_type_code(data_values):
+    val = mappings.single_val(data_values)
+    code_lookup = {
+        "malignant neoplasm of descended testis": "C62.11"
+    }
+    if val is not None and val.lower() in code_lookup:
+        return code_lookup[val.lower()]
+    return None
+
+
+def method_of_progression_status(data_values):
+    val = mappings.single_val(data_values)
+    if val is not None:
+        vals = val.split('|')
+
+    for i in range(0, len(vals)):
+        if vals[i] == "Anatomic pathology (procedure)":
+            vals[i] = "Histopathology test (procedure)"
+    return vals
+
+
+def submitter_specimen_id(data_values):
+    val = mappings.single_val(data_values)
+    if val is not None:
+        return f"specimen_{val}"
+
+
+def io_identifier(data_values):
+    val = mappings.single_val(data_values)
+    if val is not None:
+        #pembrolizumab 25 MG/ML [Keytruda]
+        io_match = re.match(r"(.+?) (\d+?) (.+?) \[(.+?)\]", val)
+        if io_match is not None:
+            return io_match.group(4)
+    return None
+
+
+def io_prescribed_dose(data_values):
+    val = mappings.single_val(data_values)
+    if val is not None:
+        #pembrolizumab 25 MG/ML [Keytruda]
+        io_match = re.match(r"(.+?) (\d+?) (.+?) \[(.+?)\]", val)
+        if io_match is not None:
+            return int(io_match.group(2))
+    return None
+
+
+def treatment_index(data_values):
+    treatment_ids = []
+    for i in range(0, len(data_values['submitter_donor_id']['Treatment'])):
+        treatment_ids.append(submitter_treatment_id(data_values, i))
+
+    result = []
+    comp_key = list(data_values.keys())[-1]
+    if len(data_values[comp_key][list(data_values[comp_key].keys())[0]]) > 0:
+        comparison = data_values[comp_key][list(data_values[comp_key].keys())[0]][0]
+    else:
+        comparison = ""
+    for treatment_id in treatment_ids:
+        if comparison == treatment_id:
+            result.append(comparison)
+        else:
+            result.append(None)
+    return {
+        "field": "submitter_treatment_id",
+        "sheet": "Treatment",
+        "values": result
+    }
+
+
+def submitter_treatment_id(data_values, i=0):
+    if 'list' in str(type(data_values['submitter_donor_id']['Treatment'])):
+        donor_id = data_values['submitter_donor_id']['Treatment'][i]
+        treatment_id = data_values['Treatment_id']['Treatment'][i]
+        treatment_type = data_values['treatment_type']['Treatment'][i]
+    else:
+        donor_id = data_values['submitter_donor_id']['Treatment']
+        treatment_id = data_values['Treatment_id']['Treatment']
+        treatment_type = data_values['treatment_type']['Treatment']
+
+    pd_id = data_values['submitter_primary_diagnosis_id']['Primary Diagnosis'][0]
+    return f"{donor_id}-{pd_id}-{treatment_type}-{treatment_id}"
+
+
+def radiation_therapy_modality(data_values):
+    val = mappings.single_val(data_values)
+
+    lookup = {
+        "Photons": "Megavoltage radiation therapy using photons (procedure)"
+        # Teleradiotherapy using electrons (procedure)
+        # Teleradiotherapy protons (procedure)
+        # Teleradiotherapy neutrons (procedure)
+        # Brachytherapy (procedure)
+        # Radiopharmaceutical
+        # Other"
+    }
+
+    if val is not None and val in lookup:
+        return lookup[val]
+    return None
+
+
+def anatomical_site_irradiated(data_values):
+    val = mappings.single_val(data_values)
+
+    lookup = {
+        "Oropharyngeal structure (body structure)": "Oropharynx",
+        "Bladder part (body structure)": "Bladder"
+    }
+
+    if val is not None and val in lookup:
+        return lookup[val]
+    return None
+
+
+def surgery_site(data_values):
+    val = mappings.pipe_delim(data_values)
+    if len(val) > 0:
+        return val[0]
+    return None
+
+
+def surgery_type(data_values):
+    val = mappings.single_val(data_values)
+
+    lookup = {
+        "Debulking": "Tumor Debulking"
+    }
+
+    if val is not None and val in lookup:
+        return lookup[val]
+    return None
+
+
+def surgery_location(data_values):
+    val = mappings.single_val(data_values)
+
+    lookup = {
+        "Primary site": "Primary"
+    }
+
+    if val is not None and val in lookup:
+        return lookup[val]
+    return None
+
+
+def residual_tumour_classification(data_values):
+    val = mappings.single_val(data_values)
+
+    lookup = {
+        "R0 (no residual tumour)": "R0"
+    }
+
+    if val is not None and val in lookup:
+        return lookup[val]
+    return None
+
+
+def margin_types_involved(data_values):
+    val = mappings.single_val(data_values)
+    vals = val.split("|")
+
+    lookup = {
+        "None": "Not applicable"
+    }
+    result = []
+    for val in vals:
+        if val in lookup:
+            result.append(lookup[val])
+    return result
+
+
+def response_to_treatment(data_values):
+    return "Physician assessed partial response"
+
+
+def treatment_setting(data_values):
+    val = mappings.single_val(data_values)
+    if val == "Not applicable":
+        return "Adjuvant"
+    return val
